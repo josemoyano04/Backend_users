@@ -1,6 +1,7 @@
 import os
+import gc
 import pytest
-from config.config import RUTA_BD, RUTA_BD__TEST
+from config.config import RUTA_BD__TEST
 from database.BD_services import BaseDeDatos
 
 @pytest.fixture(scope= "module")
@@ -14,9 +15,13 @@ def bd_test():
     print(f"/Fin de creacion de base de datos y tablas./")
     
     yield base_de_datos
-    #Limpieza de base de datos y eliminacion de las mismas una vez finalizadas las pruebas:
-    if os.path.exists(RUTA_BD__TEST):
-        os.remove(RUTA_BD__TEST)
     
-    #Desactivacion de pruebas
-    base_de_datos.desactivar_test()
+    #Cierre de conexiones
+    base_de_datos.cerrar_conexiones()
+    
+    # Limpieza de base de datos y eliminacion de las mismas una vez finalizadas las pruebas:
+    if os.path.exists(RUTA_BD__TEST):
+        base_de_datos.desactivar_test() #Desactivacion de modo test en clase BaseDeDatos
+        base_de_datos = None #Eliminacion de referencia a base de datos
+        gc.collect() #Forzado de recoleccion de basura
+        os.remove(RUTA_BD__TEST)

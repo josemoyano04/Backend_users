@@ -1,13 +1,15 @@
 #Usuario_DB
-from pydantic import BaseModel, EmailStr, model_validator
+from pydantic import BaseModel, ConfigDict, EmailStr, model_validator
+from typing import Optional
 
 class Usuario(BaseModel):
-    id: int
+    id: Optional[int]
     nombre: str
     apellido: str
     nombre_usuario: str
     correo: EmailStr
     
+    model_config = ConfigDict(arbitrary_types_allowed= True)
     
     @model_validator(mode= "before")
     def validacion_general(cls, values):
@@ -28,6 +30,3 @@ class Usuario(BaseModel):
             raise ValueError(f"El correo no puede ser nulo")
         
         return  values
-
-    class Config:
-        arbitrary_types_allowed=True
